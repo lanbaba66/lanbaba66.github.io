@@ -13,9 +13,9 @@ future: true
 
 # SNS settings
 RSS: false
-weibo_username: 
-zhihu_username: 
-github_username: 
+weibo_username: 1142202204
+zhihu_username: 1142202204
+github_username: 1142202204
 bilibili_uid: 1142202204
 #facebook_username:  huxpro
 #linkedin_username:  firstname-lastname-idxxxx
