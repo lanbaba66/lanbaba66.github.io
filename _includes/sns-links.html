@@ -22,8 +22,11 @@
   <li>
     <a target="_blank" href="https://space.bilibili.com/{{ site.bilibili_uid }}">
       <span class="fa-stack fa-lg">
-        <i class="fa fa-circle fa-stack-2x"></i>  <!-- 背景圆 -->
-        <i class="fa fa-play-circle fa-stack-1x fa-inverse"></i>  <!-- 播放按钮图标 -->
+        <i class="fa fa-circle fa-stack-2x"></i> <!-- 保留背景圆 -->
+        <!-- 引用SVG文件，适配图标大小 -->
+        <img src="{{ '/img/bilibili.svg' | prepend: site.baseurl }}" 
+             class="fa-stack-1x fa-inverse" 
+             style="width: 1em; height: 1em; object-fit: contain;" />
       </span>
     </a>
   </li>
