@@ -4,7 +4,7 @@ title:        "并没有任何东西"
 author:       "Wang"
 header-style: text
 catalog:      true
-tags:
+tags: 日常
 ---
 
 > 真的没有任何东西
