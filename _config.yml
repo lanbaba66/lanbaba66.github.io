@@ -59,14 +59,14 @@ kramdown:
       start_line: 1
 
 # Disqus settings
-# disqus_username: 
+disqus_username: hux
 
 # Netease settings
 netease_comment: false
 
 # Analytics settings
 # Baidu Analytics
-ba_track_id: 6944c331f9ccb1f22f9a0f196239e8f9
+# ba_track_id: 6944c331f9ccb1f22f9a0f196239e8f9
 
 # Google Analytics
 ga_track_id: "G-XZS1MV3RZT" # Format: UA-xxxxxx-xx
