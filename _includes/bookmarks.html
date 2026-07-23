@@ -1,0 +1,21 @@
+{% if page.bookmarks %}
+<div class="bookmark-list">
+  {% for bm in page.bookmarks %}
+  <div class="bookmark-item">
+    <a class="bookmark-link" href="{{ bm.url }}" target="_blank" rel="noopener nofollow">
+      <strong class="bookmark-name">{{ bm.name }}</strong>
+    </a>
+    {% if bm.desc %}
+    <p class="bookmark-desc">{{ bm.desc }}</p>
+    {% endif %}
+    {% if bm.tags %}
+    <div class="bookmark-tags">
+      {% for tag in bm.tags %}
+      <span class="bookmark-tag">{{ tag }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

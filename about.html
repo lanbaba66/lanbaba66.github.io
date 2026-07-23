@@ -1,0 +1,62 @@
+---
+layout: page
+title: "About"
+description: "「他单纯只想把日子过得不浪费」"
+header-img: "img/about-bg.webp"
+header-mask: 0.35
+multilingual: true
+about_knowledge_graph: true
+---
+
+<div class="about-actions" aria-label="About 页面操作">
+    {% include multilingual-sel.html %}
+    <a
+        class="about-resume-button"
+        href="{{ '/files/1783255899606-19680007576.pdf' | prepend: site.baseurl }}"
+        target="_blank"
+        rel="noopener"
+    >
+        <span class="about-resume-label-long">下载简历</span>
+        <span class="about-resume-label-short">简历</span>
+    </a>
+</div>
+
+<!-- Chinese Version -->
+<div class="zh post-container">
+    {% capture about_zh %}{% include about/zh.md %}{% endcapture %}
+    {{ about_zh | markdownify }}
+</div>
+
+<!-- English Version -->
+<div class="en post-container">
+    {% capture about_en %}{% include about/en.md %}{% endcapture %}
+    {{ about_en | markdownify }}
+</div>
+
+<script type="module" src="{{ '/js/skill-graph/about-preview.js' | prepend: site.baseurl }}"></script>
+
+
+{% if site.disqus_username %}
+<!-- disqus 评论框 start -->
+<div class="comment">
+    <div id="disqus_thread" class="disqus-thread">
+
+    </div>
+</div>
+<!-- disqus 评论框 end -->
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "{{site.disqus_username}}";
+    var disqus_identifier = "{{site.disqus_username}}/{{page.url}}";
+    var disqus_url = "{{site.url}}{{page.url}}";
+
+    (function () {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+{% endif %}

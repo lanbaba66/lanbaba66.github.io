@@ -1,0 +1,25 @@
+{
+  "name": "wang-blog",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch & sass --load-path=node_modules --watch src/scss/main.scss:assets/dist/hux.css",
+    "cp-jquery": "cp node_modules/jquery/dist/jquery.min.js assets/dist/jquery.min.js",
+    "build": "vite build && sass --load-path=node_modules --style compressed src/scss/main.scss:assets/dist/hux.css && npm run cp-jquery",
+    "jekyll": "bundle exec jekyll serve",
+    "test:skill-graph": "node --test tests/skill-graph.test.js"
+  },
+  "devDependencies": {
+    "sass": "^1.70.0",
+    "vite": "^5.1.0",
+    "vite-plugin-pwa": "^0.19.0"
+  },
+  "dependencies": {
+    "@toast-ui/editor": "^3.2.2",
+    "bootstrap": "^5.3.3",
+    "jquery": "^3.7.1",
+    "js-yaml": "^5.2.1",
+    "simplemde": "^1.11.2",
+    "vditor": "^3.11.2"
+  }
+}

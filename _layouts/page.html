@@ -1,0 +1,56 @@
+---
+layout: default
+---
+
+<!-- Page Header -->
+{% include intro-header.html type='page' %}
+
+<!-- Main Content -->
+<div class="container">
+  <div class="row">
+    {% if site.sidebar == false %}
+    <!-- NO SIDEBAR -->
+    <!-- PostList Container -->
+    <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1
+      postlist-container">
+      {{ content }}
+    </div>
+    <!-- Sidebar Container -->
+    <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1
+      sidebar-container">
+      <!-- Featured Tags -->
+      {% include featured-tags.html %}
+
+      <!-- Friends Blog -->
+      {% include friends.html %}
+    </div>
+    {% else %}
+
+    <!-- USE SIDEBAR -->
+    <!-- PostList Container -->
+    <div class="col-lg-8 offset-lg-1 col-md-8 offset-md-1 col-sm-12
+      col-12 postlist-container">
+      {{ content }}
+    </div>
+    <!-- Sidebar Container -->
+    <div class="col-lg-3 offset-lg-0 col-md-3 offset-md-0 col-sm-12
+      col-12 sidebar-container site-sidebar-sticky">
+      <!-- Featured Tags -->
+      {% include featured-tags.html %}
+
+      <!-- Short About -->
+      {% include short-about.html %}
+
+      <!-- Friends Blog -->
+      {% include friends.html %}
+
+      <!-- Ads -->
+      {% include ads.html %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if site.page-mathjax %}
+  {% include mathjax_support.html %}
+{% endif %}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <!-- 背景 -->
+  <rect width="600" height="400" rx="12" fill="#1a1a2e"/>
+
+  <!-- 装饰圆 -->
+  <circle cx="100" cy="80" r="60" fill="#16213e" opacity="0.6"/>
+  <circle cx="520" cy="320" r="80" fill="#16213e" opacity="0.6"/>
+
+  <!-- 代码图标（简化的尖括号） -->
+  <text x="300" y="140" text-anchor="middle" font-family="Consolas, Monaco, monospace" font-size="48" fill="#e94560">&lt; / &gt;</text>
+
+  <!-- 标题 -->
+  <text x="300" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#ffffff">测试图片</text>
+
+  <!-- 副标题 -->
+  <text x="300" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#a0a0b0">如果你能看到这张图，说明图片加载正常 ✅</text>
+
+  <!-- 分割线 -->
+  <line x1="200" y1="275" x2="400" y2="275" stroke="#e94560" stroke-width="2" opacity="0.5"/>
+
+  <!-- 底部信息 -->
+  <text x="300" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#6c6c8a">Wang Blog · 测试专用</text>
+
+  <!-- 装饰点 -->
+  <circle cx="260" cy="360" r="4" fill="#e94560"/>
+  <circle cx="300" cy="360" r="4" fill="#0f3460"/>
+  <circle cx="340" cy="360" r="4" fill="#e94560"/>
+</svg>

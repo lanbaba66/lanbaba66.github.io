@@ -1,0 +1,4 @@
+// 顺序关键：变量先于 BS5 才能覆盖其 !default 值
+@import 'variables';
+@import 'bootstrap/scss/bootstrap';
+@import 'custom';

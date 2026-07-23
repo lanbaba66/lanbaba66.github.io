@@ -1,0 +1,27 @@
+{% if include.lang == 'en' %}
+  {% assign graph_title = 'Knowledge Graph' %}
+  {% assign graph_action = 'View full graph' %}
+  {% assign graph_label = 'Open the full knowledge graph' %}
+  {% assign graph_fallback = 'The animated preview is unavailable. The full graph remains accessible.' %}
+{% else %}
+  {% assign graph_title = '知识图谱' %}
+  {% assign graph_action = '查看完整图谱' %}
+  {% assign graph_label = '打开完整知识图谱' %}
+  {% assign graph_fallback = '动态图谱暂时无法显示，仍可进入完整图谱。' %}
+{% endif %}
+
+<a
+  class="about-feature-card about-graph-card"
+  href="{{ '/skill-graph/' | prepend: site.baseurl }}"
+  aria-label="{{ graph_label }}"
+  data-skill-graph-preview
+>
+  <header>
+    <h2>{{ graph_title }}</h2>
+  </header>
+  <div class="about-graph-visual" aria-hidden="true">
+    <canvas></canvas>
+    <p class="about-graph-fallback" data-graph-fallback>{{ graph_fallback }}</p>
+  </div>
+  <span class="about-graph-action">{{ graph_action }} <span aria-hidden="true">→</span></span>
+</a>

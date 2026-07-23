@@ -1,0 +1,59 @@
+---
+layout: default
+title: "技能图谱"
+description: "从数学到代码，从分析到表达的可组合能力网络"
+permalink: /skill-graph/
+nav-style: invert
+hide-in-nav: true
+no-catalog: true
+graph-fullscreen: true
+---
+
+<main class="full-skill-graph" data-full-skill-graph aria-labelledby="full-graph-title">
+  <header class="full-graph-intro">
+    <h1 id="full-graph-title">拾光成章</h1>
+    <p>那些落在岁月里的所学，正一笔一画，写成今天的我。</p>
+  </header>
+
+  <canvas
+    class="full-graph-canvas"
+    role="img"
+    aria-label="动态技能关系图；点击节点可查看详情。"
+  ></canvas>
+
+  <div class="full-graph-legend" data-graph-legend role="group" aria-label="技能分类筛选"></div>
+  <div class="full-graph-meta" data-graph-meta aria-hidden="true">正在初始化图谱</div>
+  <p class="full-graph-live-status sr-only" data-graph-live-status aria-live="polite"></p>
+
+  <div class="full-graph-fallback" data-graph-fallback>
+    <p>动态图谱暂时无法显示。</p>
+    <a href="{{ '/about/' | prepend: site.baseurl }}">返回 About 页面</a>
+  </div>
+
+  <div class="full-graph-dialog-layer" data-graph-dialog-layer hidden>
+    <section
+      class="full-graph-dialog"
+      data-graph-dialog
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="full-graph-dialog-title"
+    >
+      <button class="full-graph-dialog-close" data-graph-dialog-close type="button" aria-label="关闭技能详情">×</button>
+      <div class="full-graph-dialog-node" aria-hidden="true">
+        <span data-dialog-node></span>
+      </div>
+      <article>
+        <p class="full-graph-dialog-category" data-dialog-category></p>
+        <h2 id="full-graph-dialog-title" data-dialog-title></h2>
+        <p class="full-graph-dialog-status" data-dialog-status></p>
+        <p class="full-graph-dialog-description" data-dialog-description></p>
+        <h3>主要用途</h3>
+        <div class="full-graph-dialog-tags" data-dialog-uses></div>
+        <h3>关联技能</h3>
+        <div class="full-graph-dialog-tags" data-dialog-related></div>
+      </article>
+    </section>
+  </div>
+</main>
+
+<script type="module" src="{{ '/js/skill-graph/full-page.js' | prepend: site.baseurl }}"></script>

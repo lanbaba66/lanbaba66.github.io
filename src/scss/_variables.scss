@@ -1,0 +1,30 @@
+// ========================================
+// BS5 变量覆盖（Hux 主题适配）
+// 必须在 @import 'bootstrap' 之前生效
+// ========================================
+
+// Hux 原色彩变量（从 less/variables.less 迁移）
+$brand-primary: #0085a1;
+$brand-gray: #a3a3a3;
+$gray-dark: lighten(black, 25%);
+$gray-light: lighten(black, 75%);
+$white-faded: rgba(white, 0.8);
+
+// BS5 颜色覆盖
+$primary: $brand-primary;
+$link-color: $gray-dark;
+$link-hover-color: $brand-primary;
+
+// Hux 中英文字体栈（BS5 默认 system-ui 无中文字体）
+$font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "STHeiti", "Microsoft YaHei", sans-serif;
+$headings-font-family: inherit;
+$line-height-base: 1.428571429;
+
+// 容器宽度匹配 BS3（BS5 xl=1140px, BS3 lg=1170px）
+$container-max-widths: (
+  sm: 540px,
+  md: 750px,
+  lg: 970px,
+  xl: 1170px,
+  xxl: 1170px
+);

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · Wang Blog</title>
+<!-- Toast UI Editor CSS -->
+<link rel="stylesheet" href="vditor.css">
+<!-- Admin 专用样式 -->
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ====== 蒙德里安背景层 ====== -->
+<div id="mondrian-bg" aria-hidden="true">
+  <!-- 横线 -->
+  <div class="m-line m-h1"></div>
+  <div class="m-line m-h2"></div>
+  <div class="m-line m-h3"></div>
+  <div class="m-line m-h4"></div>
+  <div class="m-line m-h5"></div>
+  <!-- 竖线 -->
+  <div class="m-line m-v1"></div>
+  <div class="m-line m-v2"></div>
+  <div class="m-line m-v3"></div>
+  <div class="m-line m-v4"></div>
+  <!-- 色块 -->
+  <div class="m-cell teal-a"></div>
+  <div class="m-cell teal-b"></div>
+  <div class="m-cell teal-c"></div>
+  <div class="m-cell teal-d"></div>
+  <div class="m-cell teal-e"></div>
+  <div class="m-cell teal-f"></div>
+  <div class="m-cell teal-g"></div>
+  <div class="m-cell teal-h"></div>
+</div>
+
+<!-- 粒子动画层 -->
+<div id="particles"></div>
+<canvas id="trail-canvas"></canvas>
+
+<!-- ====== 登录遮罩 ====== -->
+<div id="login-overlay">
+  <div class="login-card">
+    <h1>Admin</h1>
+    <p class="login-subtitle">Wang Blog 后台管理</p>
+    <form id="login-form" autocomplete="off">
+      <div class="form-group">
+        <label for="login-username">用户名</label>
+        <input type="text" id="login-username" placeholder="admin" autocomplete="off" autofocus>
+      </div>
+      <div class="form-group">
+        <label for="login-password">密码</label>
+        <div class="pw-wrap">
+          <input type="password" id="login-password" placeholder="输入密码" autocomplete="off">
+          <button type="button" class="pw-eye" tabindex="-1" data-target="login-password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="login-token">GitHub Token</label>
+        <input type="password" id="login-token" placeholder="ghp_..." autocomplete="off">
+        <span style="font-size:11px;color:#999;">仅存浏览器会话中，关标签页即失效</span>
+      </div>
+      <p id="login-error" class="login-error" style="display:none;">用户名或密码错误</p>
+      <button type="submit" id="login-btn">登录</button>
+    </form>
+  </div>
+</div>
+
+<!-- ====== 主界面（登录后可见） ====== -->
+<div id="app" style="display:none;">
+
+  <!-- 顶部栏 -->
+  <header class="admin-header">
+    <span class="admin-title">Admin · Wang Blog</span>
+    <button id="btn-logout" class="btn-logout">退出登录</button>
+  </header>
+
+  <div class="admin-body">
+
+    <!-- 侧边栏 -->
+    <nav class="admin-sidebar">
+      <ul class="nav-menu">
+        <li class="nav-item active" data-view="articles">📄 文章管理</li>
+        <li class="nav-item" data-view="bookmarks">🔖 书签管理</li>
+        <li class="nav-item" data-view="new-post">✏️ 新建文章</li>
+      </ul>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="admin-content">
+      <div id="view-articles" class="view-panel"><!-- 文章列表 + 编辑器 --></div>
+      <div id="view-bookmarks" class="view-panel" style="display:none;"><!-- 书签编辑器 --></div>
+      <div id="view-new-post" class="view-panel" style="display:none;"><!-- 新建文章 --></div>
+    </main>
+
+  </div>
+
+  <!-- 状态栏 -->
+  <footer class="admin-statusbar">
+    <span id="status-text">就绪</span>
+  </footer>
+</div>
+
+<!-- js-yaml（解析/生成 front matter） -->
+<script src="js-yaml.min.js"></script>
+<!-- Toast UI Editor JS -->
+<script src="vditor.min.js"></script>
+<!-- PBKDF2 验证模块 -->
+<script type="module">
+  import { verifyPassword } from './pbkdf2.js';
+
+  // ====== 登录逻辑 ======
+  const loginOverlay = document.getElementById('login-overlay');
+  const appEl = document.getElementById('app');
+  const loginForm = document.getElementById('login-form');
+  const loginError = document.getElementById('login-error');
+  const loginBtn = document.getElementById('login-btn');
+  const usernameInput = document.getElementById('login-username');
+  const passwordInput = document.getElementById('login-password');
+  const tokenInput = document.getElementById('login-token');
+
+  // 检查登录状态：已登录 + 已画过网格 → 直接显示完整后台（不重播动画）
+  if (sessionStorage.getItem('admin_authed') === '1' && sessionStorage.getItem('gh_token')) {
+    if (sessionStorage.getItem('mondrian_drawn') === '1') {
+      // 正常：之前登录过 + 看过动画 → 直接显示网格
+      document.body.classList.add('mondrian-ready');
+    } else {
+      // 旧 session 没 mondrian_drawn 标记 → 补标记 + 显示网格（跳过动画）
+      sessionStorage.setItem('mondrian_drawn', '1');
+      document.body.classList.add('mondrian-ready');
+    }
+    loginOverlay.style.display = 'none';
+    appEl.style.display = 'flex';
+    appEl.classList.add('app-visible');
+    if (typeof initApp === 'function') initApp();
+  }
+
+  // 密码眼睛切换
+  const eyeOpenSVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const eyeOffSVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  document.querySelectorAll('.pw-eye').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? eyeOffSVG : eyeOpenSVG;
+    });
+  });
+
+  // Enter 键导航：用户名→密码→Token→提交
+  usernameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); passwordInput.focus(); }
+  });
+  passwordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); tokenInput.focus(); }
+  });
+  tokenInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); loginBtn.click(); }
+  });
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    loginBtn.disabled = true;
+    loginBtn.textContent = '验证中...';
+    loginError.style.display = 'none';
+
+    const ok = await verifyPassword(username, password);
+    if (ok) {
+      const token = tokenInput.value.trim();
+      if (token) sessionStorage.setItem('gh_token', token);
+      sessionStorage.setItem('admin_authed', '1');
+
+      // 先让登录卡片淡出，露出背后的动画舞台
+      loginOverlay.style.opacity = '0';
+      loginOverlay.style.background = 'transparent';
+      loginOverlay.style.backdropFilter = 'none';
+      loginOverlay.style.transition = 'opacity 0.35s cubic-bezier(0.4,0,0.2,1)';
+
+      // 等淡出完成 → 播放蒙德里安入场动画 → 动画结束显示后台
+      setTimeout(function() {
+        if (typeof playEntranceAnimation === 'function') {
+          playEntranceAnimation(function() {
+            document.body.classList.add('mondrian-ready');
+            sessionStorage.setItem('mondrian_drawn', '1');
+            loginOverlay.style.display = 'none';
+            appEl.style.display = 'flex';
+            /* 下一帧触发 CSS 过渡 */
+            requestAnimationFrame(function() { appEl.classList.add('app-visible'); });
+            initApp();
+          });
+        } else {
+          // 回退：无动画直接进
+          document.body.classList.add('mondrian-ready');
+          sessionStorage.setItem('mondrian_drawn', '1');
+          loginOverlay.style.display = 'none';
+          appEl.style.display = 'flex';
+          appEl.classList.add('app-visible');
+          initApp();
+        }
+      }, 400);
+    } else {
+      loginError.style.display = 'block';
+      loginBtn.disabled = false;
+      loginBtn.textContent = '登 录';
+    }
+  });
+
+  // 退出登录——清除所有状态回到清洁登录页
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    sessionStorage.removeItem('admin_authed');
+    sessionStorage.removeItem('gh_token');
+    sessionStorage.removeItem('mondrian_drawn');
+    location.reload();
+  });
+</script>
+<!-- GitHub API 封装 -->
+<script src="api.js"></script>
+<!-- Toast 提示容器 -->
+<div id="toast" class="toast" style="display:none;"></div>
+<!-- 后台核心逻辑 -->
+<script src="app.js"></script>
+<!-- 蒙德里安入场动画（仅桌面端，登录成功后触发） -->
+<script>
+(function() {
+  /* 移动端跳过 */
+  if (window.innerWidth <= 768) {
+    window.playEntranceAnimation = function(cb) { cb(); };
+    return;
+  }
+
+  var particlesEl = document.getElementById('particles');
+  var trailCanvas = document.getElementById('trail-canvas');
+  var ctx = trailCanvas.getContext('2d');
+  var lines = document.querySelectorAll('.m-line');
+  var cells = document.querySelectorAll('.m-cell');
+  var animId = null;
+  var activeTrails = [];
+
+  function resizeCanvas() {
+    trailCanvas.width = window.innerWidth;
+    trailCanvas.height = window.innerHeight;
+  }
+
+  function getLineCoords() {
+    var bg = document.getElementById('mondrian-bg');
+    var rect = bg.getBoundingClientRect();
+    var style = getComputedStyle(bg);
+    var rows = style.gridTemplateRows.split(' ').map(parseFloat);
+    var cols = style.gridTemplateColumns.split(' ').map(parseFloat);
+    var y = rect.top, rowPos = [y];
+    for (var ri = 0; ri < rows.length; ri++) { y += rows[ri]; rowPos.push(y); }
+    var x = rect.left, colPos = [x];
+    for (var ci = 0; ci < cols.length; ci++) { x += cols[ci]; colPos.push(x); }
+    var hY = [2,4,6,8,10].map(function(i) { return (rowPos[i-1] + rowPos[i]) / 2; });
+    var vX = [2,4,6,8].map(function(i) { return (colPos[i-1] + colPos[i]) / 2; });
+    return {
+      hLines: hY.map(function(y) { return { y: y, x1: rect.left, x2: rect.right }; }),
+      vLines: vX.map(function(x) { return { x: x, y1: rect.top, y2: rect.bottom }; }),
+      rect: rect
+    };
+  }
+
+  function createParticle() {
+    var el = document.createElement('div');
+    el.className = 'particle';
+    particlesEl.appendChild(el);
+    var trail = { points: [], alive: true };
+    activeTrails.push(trail);
+    return { el: el, trail: trail };
+  }
+
+  function removeParticle(p) {
+    p.el.style.transition = 'opacity 0.3s';
+    p.el.style.opacity = '0';
+    setTimeout(function() { p.el.remove(); }, 350);
+    p.trail.alive = false;
+  }
+
+  function flyParticle(particle, x1, y1, x2, y2, duration, onEnd) {
+    var start = performance.now();
+    function tick(now) {
+      var t = Math.min((now - start) / duration, 1);
+      var ease = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2)/2;
+      particle.el.style.left = (x1 + (x2 - x1) * ease) + 'px';
+      particle.el.style.top = (y1 + (y2 - y1) * ease) + 'px';
+      particle.el.style.opacity = '1';
+      particle.trail.points.push({ x: x1 + (x2 - x1) * ease, y: y1 + (y2 - y1) * ease, alpha: 0.7 });
+      if (t < 1) requestAnimationFrame(tick);
+      else onEnd && onEnd();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function drawTrails() {
+    ctx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+    activeTrails = activeTrails.filter(function(t) {
+      if (!t.alive) {
+        t.points.forEach(function(p) { p.alpha -= 0.025; });
+        return t.points.some(function(p) { return p.alpha > 0; });
+      }
+      return true;
+    });
+    activeTrails.forEach(function(trail) {
+      var pts = trail.points;
+      if (pts.length < 2) return;
+      if (!trail.alive) pts.forEach(function(p) { p.alpha -= 0.025; });
+      var visible = pts.filter(function(p) { return p.alpha > 0; });
+      if (visible.length < 2) return;
+      ctx.beginPath();
+      ctx.moveTo(visible[0].x, visible[0].y);
+      for (var i = 1; i < visible.length; i++) ctx.lineTo(visible[i].x, visible[i].y);
+      ctx.strokeStyle = 'rgba(0,133,161,0.25)'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.stroke();
+      var recent = visible.slice(-12);
+      if (recent.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(recent[0].x, recent[0].y);
+        for (var j = 1; j < recent.length; j++) ctx.lineTo(recent[j].x, recent[j].y);
+        ctx.strokeStyle = 'rgba(0,133,161,0.45)'; ctx.lineWidth = 3; ctx.stroke();
+      }
+    });
+  }
+
+  function startTrailLoop() {
+    trailCanvas.style.opacity = '1';
+    function loop() { drawTrails(); animId = requestAnimationFrame(loop); }
+    animId = requestAnimationFrame(loop);
+  }
+
+  function fadeAllTrails() {
+    activeTrails.forEach(function(t) { t.alive = false; });
+    function waitFade() {
+      var any = activeTrails.some(function(t) { return t.points.some(function(p) { return p.alpha > 0; }); });
+      if (any) { drawTrails(); requestAnimationFrame(waitFade); }
+      else { ctx.clearRect(0,0,trailCanvas.width,trailCanvas.height); trailCanvas.style.opacity = '0'; activeTrails = []; }
+    }
+    requestAnimationFrame(waitFade);
+  }
+
+  /* 全局入口：登录成功后调用 */
+  window.playEntranceAnimation = function(onDone) {
+    resizeCanvas();
+
+    /* 先显示网格（触发布局计算），再读取坐标 */
+    document.body.classList.add('animating');
+    /* 强制回流，确保 grid 从 display:none → display:grid 后尺寸已计算 */
+    document.getElementById('mondrian-bg').offsetHeight;
+
+    var coords = getLineCoords();
+    var hLines = coords.hLines, vLines = coords.vLines, rect = coords.rect;
+
+    startTrailLoop();
+
+    var H_DURATION = 380, H_STAGGER = 150;
+    var hPromises = hLines.map(function(line, i) {
+      return new Promise(function(resolve) {
+        var p = createParticle();
+        setTimeout(function() {
+          flyParticle(p, rect.left - 20, line.y, rect.right + 10, line.y, H_DURATION, function() {
+            lines[i].classList.add('drawn');
+            removeParticle(p);
+            resolve();
+          });
+        }, i * H_STAGGER);
+      });
+    });
+
+    var V_DURATION = 380, V_STAGGER = 150, V_DELAY = H_STAGGER * hLines.length + 200;
+    var vPromises = vLines.map(function(line, i) {
+      return new Promise(function(resolve) {
+        var p = createParticle();
+        setTimeout(function() {
+          flyParticle(p, line.x, rect.top - 20, line.x, rect.bottom + 10, V_DURATION, function() {
+            lines[5 + i].classList.add('drawn');
+            removeParticle(p);
+            resolve();
+          });
+        }, V_DELAY + i * V_STAGGER);
+      });
+    });
+
+    Promise.all(hPromises.concat(vPromises)).then(function() {
+      setTimeout(function() {
+        /* 所有色块同时浮现（渐变 1s）+ 同时触发 UI 浮现 */
+        cells.forEach(function(c) { c.classList.add('reveal'); });
+        setTimeout(function() {
+          document.body.classList.remove('animating');
+          fadeAllTrails();
+          onDone(); /* 色块 + UI 同时完成 */
+        }, 1500);
+      }, 200);
+    });
+  };
+})();
+</script>
+</body>
+</html>
